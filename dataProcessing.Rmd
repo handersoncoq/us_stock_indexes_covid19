@@ -23,7 +23,9 @@ library(tidyr)
 
 ```{r stock indexes data}
 
-stockIndexes = c("^GSPC", "^DJI", "^IXIC", "^RUT")
+stockIndexes = c("^GSPC", "^DJI", "^IXIC")
+
+############
 
 indexesData <- tq_get(stockIndexes,
                  from = "2020-01-01",
@@ -36,15 +38,31 @@ indexesData %>%
   group_by(symbol) %>%
   slice(1)
 
-### Check last date of data
+############
 
-tail(indexesData)
+GSPC <- indexesData %>% 
+  filter(symbol == "^GSPC")
+
+DJI <- indexesData %>% 
+  filter(symbol == "^DJI")
+
+IXIC <- indexesData %>% 
+  filter(symbol == "^IXIC")
+
+### Add daily return for each stock index
+
+GSPC$return <- diff(GSPC$adjusted)/Lag(GSPC$adjusted)
+
+DJI$return <- diff(DJI$adjusted)/Lag(DJI$adjusted)
+
+IXIC$return <- diff(IXIC$adjusted)/Lag(IXIC$adjusted)
+
 
 ```
 
 ### Get 30 major stocks' data (DJI)
 
-```{r}
+```{r stocks}
 
 stocks = c("AAPL",	"AMGN",	"AXP",	"BA",	"CAT",	"CRM",	"CSCO",	"CVX",	"DIS",	"DOW",	"GS",	"HD",	"HON",	"IBM",	"INTC",	"JNJ",	"JPM",	"KO",	"MCD",	"MMM",	"MRK",	"MSFT",	"NKE",	"PG",	"TRV",	"UNH",	"V",	"VZ",	"WBA",	"WMT")
 
@@ -52,6 +70,29 @@ stocksData <- tq_get(stocks,
                  from = "2020-01-01",
                  to = Sys.Date(),
                  get = "stock.prices")
+
+```
+
+### Get covid-19 data
+
+```{r covid-19 data}
+
+#install.packages("COVID19")
+library(COVID19)
+
+### world covid-19 data
+
+x <- covid19(verbose = FALSE)
+covid19 <- xts(x[,c("id" , "confirmed", "recovered", "vaccines")], order.by = x$date)
+
+### U.S. covid-19 data
+
+y <- covid19("USA", verbose = FALSE) 
+usCovid <- xts(y[,c("confirmed", "recovered", "vaccines")], order.by = y$date)
+
+### Add daily change in cases
+
+usCovid$change = diff(usCovid$confirmed)/Lag(usCovid$confirmed)
 
 ```
 
