@@ -1,0 +1,58 @@
+---
+title: "Stocks Data Treatment"
+author: "Handerson Coq"
+date: '2022-07-10'
+output: html_document
+---
+
+### Libraries
+
+```{r libraries}
+
+#install.packages("quantmod")
+#install.packages("tidyquant")
+library(quantmod)
+library(tidyquant)
+library(dplyr)
+library(tidyr)
+
+
+```
+
+### Get major stock indexes' data
+
+```{r stock indexes data}
+
+stockIndexes = c("^GSPC", "^DJI", "^IXIC", "^RUT")
+
+indexesData <- tq_get(stockIndexes,
+                 from = "2020-01-01",
+                 to = Sys.Date(),
+                 get = "stock.prices")
+
+### See the first row of data of each index
+
+indexesData %>%
+  group_by(symbol) %>%
+  slice(1)
+
+### Check last date of data
+
+tail(indexesData)
+
+```
+
+### Get 30 major stocks' data (DJI)
+
+```{r}
+
+stocks = c("AAPL",	"AMGN",	"AXP",	"BA",	"CAT",	"CRM",	"CSCO",	"CVX",	"DIS",	"DOW",	"GS",	"HD",	"HON",	"IBM",	"INTC",	"JNJ",	"JPM",	"KO",	"MCD",	"MMM",	"MRK",	"MSFT",	"NKE",	"PG",	"TRV",	"UNH",	"V",	"VZ",	"WBA",	"WMT")
+
+stocksData <- tq_get(stocks,
+                 from = "2020-01-01",
+                 to = Sys.Date(),
+                 get = "stock.prices")
+
+```
+
+
