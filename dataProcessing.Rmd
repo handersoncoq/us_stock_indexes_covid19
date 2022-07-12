@@ -83,12 +83,18 @@ library(COVID19)
 ### world covid-19 data
 
 x <- covid19(verbose = FALSE)
-covid19 <- xts(x[,c("id" , "confirmed", "recovered", "vaccines")], order.by = x$date)
+
+worldCovid <- data.frame(x[,c("date", "confirmed", "recovered", "deaths", "government_response_index", "people_vaccinated")]) %>%
+  group_by(date) %>%
+  arrange(date) %>% 
+  summarize(confirmed = sum(confirmed, na.rm=TRUE), recovered = sum(recovered, na.rm=TRUE), deaths = sum(deaths, na.rm=TRUE), govRespIndex = mean(government_response_index, na.rm=TRUE), peopleVac = sum(people_vaccinated, na.rm=TRUE))
 
 ### U.S. covid-19 data
 
 y <- covid19("USA", verbose = FALSE) 
-usCovid <- xts(y[,c("confirmed", "recovered", "vaccines")], order.by = y$date)
+
+usCovid <- data.frame(y[,c("date", "confirmed", "recovered", "deaths", "government_response_index", "people_vaccinated")]) %>% 
+  arrange(date)
 
 ### Add daily change in cases
 
@@ -96,4 +102,36 @@ usCovid$change = diff(usCovid$confirmed)/Lag(usCovid$confirmed)
 
 ```
 
+
+### Cobining data
+
+```{r}
+
+### Combining US covid-19 data with stock index data
+
+us_covid_indexes <- full_join(usCovid, indexesData)
+
+us_covid_stocks <- full_join(usCovid, stocksData)
+
+### Combining world covid-19 data with stock index data
+
+world_covid_indexes <- full_join(worldCovid, indexesData)
+
+world_covid_stocks <- full_join(worldCovid, stocksData)
+
+```
+
+### Exporting data
+
+```{r}
+
+write.csv(us_covid_indexes, file="us_covid_indexes.csv", quote=F)
+
+write.csv(us_covid_stocks, file="us_covid_stocks.csv", quote=F)
+
+write.csv(world_covid_indexes, file="world_covid_indexes.csv", quote=F)
+
+write.csv(world_covid_stocks, file="world_covid_stocks.csv", quote=F)
+
+```
 
